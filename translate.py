@@ -112,6 +112,7 @@ if __name__ == '__main__':
         specs = synthesizer.synthesize_spectrograms(texts, embeds)
         spec = specs[0]
         print("Created the mel spectrogram!! This will act as input to the vocoder:")
+        print(type(spec))
         print(spec)
         
         ## Generating the waveform
