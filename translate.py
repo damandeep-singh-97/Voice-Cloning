@@ -2,7 +2,8 @@ from encoder.params_model import model_embedding_size as speaker_embedding_size
 from utils.argutils import print_args
 from synthesizer.inference import Synthesizer
 from encoder import inference as encoder
-from vocoder import inference as vocoder
+from encoder.inference import plot_embedding_as_heatmap
+# from vocoder import inference as vocoder
 from pathlib import Path
 import numpy as np
 import librosa
@@ -20,7 +21,7 @@ if __name__ == '__main__':
     # remove this, should be hardcoded elsewhere
     parser.add_argument("-e", "--enc_model_fpath", type=Path,default="encoder/saved_models/pretrained.pt",help="Path to a saved encoder")
     parser.add_argument("-s", "--syn_model_dir", type=Path,default="synthesizer/saved_models/logs-pretrained/",help="Directory containing the synthesizer model")
-    parser.add_argument("-v", "--voc_model_fpath", type=Path,default="vocoder/saved_models/pretrained/pretrained.pt",help="Path to a saved vocoder")
+    # parser.add_argument("-v", "--voc_model_fpath", type=Path,default="vocoder/saved_models/pretrained/pretrained.pt",help="Path to a saved vocoder")
     # 
 
     parser.add_argument("--out", type=Path,default="output.wav", help="sets the output wav file")
@@ -69,7 +70,7 @@ if __name__ == '__main__':
     print("Preparing the encoder, the synthesizer and the vocoder...")
     encoder.load_model(args.enc_model_fpath)
     synthesizer = Synthesizer(args.syn_model_dir.joinpath("taco_pretrained"))
-    vocoder.load_model(args.voc_model_fpath)
+    # vocoder.load_model(args.voc_model_fpath)
 
 
     # ********************************
@@ -86,7 +87,10 @@ if __name__ == '__main__':
 
     embeds = []
     embeds.append(encoder.embed_utterance(encoder.preprocess_wav("input.wav")))
-
+    print("Embedding generated with success!!This will act as input to sythesizer along with text:")
+    print(embeds)
+    print("Plotting heatmap for the embedding:")
+    plot_embedding_as_heatmap(embedding_op)
 
 
     print("Interactive generation loop")
@@ -106,22 +110,22 @@ if __name__ == '__main__':
         # passing return_alignments=True
         specs = synthesizer.synthesize_spectrograms(texts, embeds)
         spec = specs[0]
-        print("Created the mel spectrogram")
-        
+        print("Created the mel spectrogram!! This will act as input to the vocoder:")
+        print(spec)
         
         ## Generating the waveform
-        print("Synthesizing the waveform:")
+        # print("Synthesizing the waveform:")
         # Synthesizing the waveform is fairly straightforward. Remember that the longer the
         # spectrogram, the more time-efficient the vocoder.
-        generated_wav = vocoder.infer_waveform(spec)
+        # generated_wav = vocoder.infer_waveform(spec)
         
         ## Post-generation
         # There's a bug with sounddevice that makes the audio cut one second earlier, so we
         # pad it.
-        generated_wav = np.pad(generated_wav, (0, synthesizer.sample_rate), mode="constant")
+        # generated_wav = np.pad(generated_wav, (0, synthesizer.sample_rate), mode="constant")
         
         # Save it on the disk
-        if args.out:
+        """ if args.out:
             fpath = args.out
         else:
             fpath = "output.wav"
@@ -130,7 +134,8 @@ if __name__ == '__main__':
 
         sf.write(fpath, generated_wav.astype(np.float32), synthesizer.sample_rate)
 
-        print("\nSaved output as %s\n\n" % fpath)
+        print("\nSaved output as %s\n\n" % fpath) """
+
         
         
     except Exception as e:
