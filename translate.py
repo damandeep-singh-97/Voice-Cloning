@@ -90,7 +90,7 @@ if __name__ == '__main__':
     print("Embedding generated with success!!This will act as input to sythesizer along with text:")
     print(embeds)
     print("Plotting heatmap for the embedding:")
-    plot_embedding_as_heatmap(embeds)
+    # plot_embedding_as_heatmap(embeds)
 
 
     print("Interactive generation loop")
